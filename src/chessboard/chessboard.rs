@@ -21,7 +21,7 @@ struct ChessBoard {
     selected_piece: Option<Piece>,
 }
 
-pub impl ChessBoard {
+impl ChessBoard {
     fn new() -> ChessBoard {
         let mut board = ChessBoard {
             squares: [[Piece::None; 8]; 8],

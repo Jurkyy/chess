@@ -1,4 +1,4 @@
-use chess::chessboard::{ChessBoard, Piece};
+mod chessboard;
 
 fn main() {
     println!("Hello, world!");
