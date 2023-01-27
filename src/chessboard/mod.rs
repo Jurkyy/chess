@@ -1,1 +1,1 @@
-pub mod chessboard;
+pub mod board;
