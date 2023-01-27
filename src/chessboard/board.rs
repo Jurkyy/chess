@@ -35,7 +35,7 @@ enum PieceType {
 }
 
 #[derive(PartialEq, Copy, Clone, Debug)]
-enum Color {
+pub enum Color {
     White,
     Black,
 }
@@ -79,6 +79,23 @@ impl Piece {
             (Color::Black, PieceType::Bishop) => 'b',
             (Color::Black, PieceType::Queen) => 'q',
             (Color::Black, PieceType::King) => 'k',
+        }
+    }
+
+    pub fn ascii_char(&self) -> char {
+        match (self.piece_type, self.color) {
+            (PieceType::Pawn, Color::White) => '♙',
+            (PieceType::Pawn, Color::Black) => '♟',
+            (PieceType::Rook, Color::White) => '♖',
+            (PieceType::Rook, Color::Black) => '♜',
+            (PieceType::Knight, Color::White) => '♘',
+            (PieceType::Knight, Color::Black) => '♞',
+            (PieceType::Bishop, Color::White) => '♗',
+            (PieceType::Bishop, Color::Black) => '♝',
+            (PieceType::Queen, Color::White) => '♕',
+            (PieceType::Queen, Color::Black) => '♛',
+            (PieceType::King, Color::White) => '♔',
+            (PieceType::King, Color::Black) => '♚',
         }
     }
 }
@@ -424,7 +441,7 @@ impl ChessBoard {
         self.turn
     }
 
-    fn get_piece(&self, x: usize, y: usize) -> Option<Piece> {
+    pub fn get_piece(&self, x: usize, y: usize) -> Option<Piece> {
         if x < self.squares.len() && y < self.squares[x].len() {
             return self.squares[x][y];
         }
