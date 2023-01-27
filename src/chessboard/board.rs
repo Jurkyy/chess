@@ -1,6 +1,8 @@
+use std::cmp::Ordering;
+
 fn parse_chess_notation(notation: &str) -> Result<(usize, usize), &str> {
     //parse chess notation
-    let file = match notation.chars().nth(0) {
+    let file = match notation.chars().next() {
         Some(c) => match c.to_ascii_lowercase() {
             'a' => 0,
             'b' => 1,
@@ -36,6 +38,15 @@ enum PieceType {
 enum Color {
     White,
     Black,
+}
+
+impl Color {
+    fn opposite(&self) -> Color {
+        match self {
+            Color::White => Color::Black,
+            Color::Black => Color::White,
+        }
+    }
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -133,13 +144,13 @@ impl ChessBoard {
                     print!("_ ");
                 }
             }
-            println!("");
+            println!();
         }
     }
 
     pub fn move_piece_from_input(&mut self, input: &str) {
         //parse input string to extract piece type, origin, and destination
-        let input_parts: Vec<&str> = input.split(" ").collect();
+        let input_parts: Vec<&str> = input.split(' ').collect();
         let origin = match parse_chess_notation(input_parts[0]) {
             Ok(res) => res,
             Err(e) => {
@@ -186,9 +197,12 @@ impl ChessBoard {
             // Legal move
             self.squares[t_x][t_y] = Some(*piece);
             self.squares[f_x][f_y] = None;
+
+            self.turn = self.get_turn().opposite();
         } else {
             return Err("This board cell is empty.");
         }
+
         Ok(())
     }
 
@@ -214,34 +228,26 @@ impl ChessBoard {
     fn move_diagonal(&self, from: (usize, usize), to: (usize, usize)) -> bool {
         (0..8).any(|x| {
             // right and up or down
-            ((from.0 + x == to.0 &&
+            (from.0 + x == to.0 &&
             (from.1 + x == to.1 || from.1.checked_sub(x).is_some() && from.1 - x == to.1)) ||
             // left and up or down
             (from.0.checked_sub(x).is_some() && from.0 - x == to.0 &&
-            (from.1 + x == to.1 || from.1.checked_sub(x).is_some() && from.1 - x == to.1)))
+            (from.1 + x == to.1 || from.1.checked_sub(x).is_some() && from.1 - x == to.1))
         }) && self.clear_way(Direction::Diagonal, from, to)
     }
 
     fn clear_way(&self, direction: Direction, from: (usize, usize), to: (usize, usize)) -> bool {
         match direction {
-            Direction::Vertical => {
-                if to.1 > from.1 {
-                    (from.1 + 1..to.1).all(|x| self.squares[from.0][x].is_none())
-                } else if to.1 < from.1 {
-                    (to.1 + 1..from.1).all(|x| self.squares[from.0][x].is_none())
-                } else {
-                    false
-                }
-            }
-            Direction::Horizontal => {
-                if to.0 > from.0 {
-                    (from.0 + 1..to.0).all(|x| self.squares[x][from.1].is_none())
-                } else if to.0 < from.0 {
-                    (to.0 + 1..from.0).all(|x| self.squares[x][from.1].is_none())
-                } else {
-                    false
-                }
-            }
+            Direction::Vertical => match to.1.cmp(&from.1) {
+                Ordering::Greater => (from.1 + 1..to.1).all(|x| self.squares[from.0][x].is_none()),
+                Ordering::Less => (to.1 + 1..from.1).all(|x| self.squares[from.0][x].is_none()),
+                Ordering::Equal => false,
+            },
+            Direction::Horizontal => match to.0.cmp(&from.0) {
+                Ordering::Greater => (from.0 + 1..to.0).all(|x| self.squares[x][from.1].is_none()),
+                Ordering::Less => (to.0 + 1..from.0).all(|x| self.squares[x][from.1].is_none()),
+                Ordering::Equal => false,
+            },
             Direction::Diagonal => {
                 if to.0 > from.0 && to.1 > from.1 {
                     let diff = to.0 - from.0;
@@ -378,9 +384,14 @@ impl ChessBoard {
         let horizontal_movement = self.move_horizontal(from, to);
         let diagonal_movement = self.move_diagonal(from, to);
 
-        (vertical_movement && !horizontal_movement && !diagonal_movement && to_color)
-            || (!vertical_movement && horizontal_movement && !diagonal_movement && to_color)
-            || (!vertical_movement && !horizontal_movement && diagonal_movement && to_color)
+        to_color
+            && ((vertical_movement as u8 + horizontal_movement as u8 + diagonal_movement as u8)
+                == 1)
+
+        // Are these equivalent?
+        //  (vertical_movement && !horizontal_movement && !diagonal_movement && to_color)
+        //     || (!vertical_movement && horizontal_movement && !diagonal_movement && to_color)
+        //     || (!vertical_movement && !horizontal_movement && diagonal_movement && to_color)
     }
     fn king_move(&self, from: (usize, usize), to: (usize, usize), piece: Piece) -> bool {
         let mut to_color = true;
@@ -421,6 +432,7 @@ impl ChessBoard {
     }
 
     pub fn fen(&self) -> String {
+        // Piece placement data
         let mut fen_string = String::new();
         for i in 0..8 {
             let mut empty_count = 0;
@@ -440,12 +452,20 @@ impl ChessBoard {
             }
             if empty_count > 0 {
                 fen_string.push_str(&empty_count.to_string());
-                empty_count = 0;
             }
             if i < 7 {
                 fen_string.push('/');
             }
         }
+
+        // Add active color
+        let turn = self.get_turn();
+        if turn == Color::White {
+            fen_string.push_str(" w");
+        } else {
+            fen_string.push_str(" b");
+        }
+
         println!("FEN: {}", fen_string);
         fen_string
     }
