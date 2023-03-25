@@ -115,8 +115,14 @@ enum Direction {
 pub struct ChessBoard {
     pub squares: [[Option<Piece>; 8]; 8],
     turn: Color,
+    white_castle_kingside: bool,
+    white_castle_queenside: bool,
+    black_castle_kingside: bool,
+    black_castle_queenside: bool,
     white_en_passant: Option<(usize, usize)>,
     black_en_passant: Option<(usize, usize)>,
+    halfmove_clock: u32,
+    fullmove_counter: u32,
 }
 
 impl ChessBoard {
@@ -124,8 +130,14 @@ impl ChessBoard {
         let mut board = ChessBoard {
             squares: [[None; 8]; 8],
             turn: Color::White,
-            black_en_passant: None,
+            white_castle_kingside: true,
+            white_castle_queenside: true,
+            black_castle_kingside: true,
+            black_castle_queenside: true,
             white_en_passant: None,
+            black_en_passant: None,
+            halfmove_clock: 0,
+            fullmove_counter: 1,
         };
 
         // Initialize the pawns
@@ -202,6 +214,30 @@ impl ChessBoard {
         }
     }
 
+    pub fn halfmove_clock(&self) -> u32 {
+        self.halfmove_clock
+    }
+
+    pub fn fullmove_number(&self) -> u32 {
+        self.fullmove_counter
+    }
+
+    pub fn white_castle_kingside(&self) -> bool {
+        self.white_castle_kingside
+    }
+
+    pub fn white_castle_queenside(&self) -> bool {
+        self.white_castle_queenside
+    }
+
+    pub fn black_castle_kingside(&self) -> bool {
+        self.black_castle_kingside
+    }
+
+    pub fn black_castle_queenside(&self) -> bool {
+        self.black_castle_queenside
+    }
+
     fn move_piece(
         &mut self,
         from: (usize, usize),
@@ -211,7 +247,7 @@ impl ChessBoard {
         let (f_x, f_y) = from;
         let (t_x, t_y) = to;
 
-        if let Some(piece) = self.squares[f_x][f_y] {
+        if let Some(mut piece) = self.squares[f_x][f_y] {
             if !ignore_ownership && piece.color != self.turn {
                 self.squares[f_x][f_y] = Some(piece);
                 Err(MoveError::InvalidOwnership)
@@ -223,13 +259,21 @@ impl ChessBoard {
 
                 if let Some((x, y)) = captured_piece {
                     self.squares[x][y] = None;
+                } else if piece.piece_type == PieceType::Pawn {
+                    self.halfmove_clock = 0;
+                } else {
+                    self.halfmove_clock += 1;
                 }
 
+                piece.has_moved = true;
                 self.squares[t_x][t_y] = Some(piece);
                 self.squares[f_x][f_y] = None;
 
                 match self.turn {
-                    Color::Black => self.black_en_passant = None,
+                    Color::Black => {
+                        self.black_en_passant = None;
+                        self.fullmove_counter += 1;
+                    }
                     Color::White => self.white_en_passant = None,
                 }
 
@@ -586,8 +630,26 @@ impl ChessBoard {
             fen_string.push_str(" b");
         }
 
-        // Enconde the castling rights
-        fen_string.push(' ');
+        // Encode the castling rights
+        let mut castling_rights = String::new();
+        if self.white_castle_kingside() {
+            castling_rights.push('K');
+        }
+        if self.white_castle_queenside() {
+            castling_rights.push('Q');
+        }
+        if self.black_castle_kingside() {
+            castling_rights.push('k');
+        }
+        if self.black_castle_queenside() {
+            castling_rights.push('q');
+        }
+        if castling_rights.is_empty() {
+            fen_string.push_str(" -");
+        } else {
+            fen_string.push(' ');
+            fen_string.push_str(&castling_rights);
+        }
 
         // Encode the en passant target square(s)
         fen_string.push(' ');
@@ -599,8 +661,10 @@ impl ChessBoard {
             fen_string.push('-');
         }
 
-        // Enconde the halfmove and fullmove clocks
-        fen_string.push(' ');
+        // Encode the halfmove and fullmove clocks
+        let halfmove_clock = self.halfmove_clock();
+        let fullmove_number = self.fullmove_number();
+        fen_string.push_str(&format!(" {} {}", halfmove_clock, fullmove_number));
 
         println!("FEN: {}", fen_string);
         fen_string
