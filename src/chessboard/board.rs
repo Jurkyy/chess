@@ -34,6 +34,13 @@ enum PieceType {
     King,
 }
 
+#[derive(Debug)]
+enum MoveError {
+    EmptySquare,
+    InvalidOwnership,
+    InvalidMove,
+}
+
 #[derive(PartialEq, Copy, Clone, Debug)]
 pub enum Color {
     White,
@@ -84,18 +91,18 @@ impl Piece {
 
     pub fn ascii_char(&self) -> char {
         match (self.piece_type, self.color) {
-            (PieceType::Pawn, Color::White) => '♙',
-            (PieceType::Pawn, Color::Black) => '♟',
-            (PieceType::Rook, Color::White) => '♖',
-            (PieceType::Rook, Color::Black) => '♜',
-            (PieceType::Knight, Color::White) => '♘',
-            (PieceType::Knight, Color::Black) => '♞',
-            (PieceType::Bishop, Color::White) => '♗',
-            (PieceType::Bishop, Color::Black) => '♝',
-            (PieceType::Queen, Color::White) => '♕',
-            (PieceType::Queen, Color::Black) => '♛',
-            (PieceType::King, Color::White) => '♔',
-            (PieceType::King, Color::Black) => '♚',
+            (PieceType::Pawn, Color::White) => '♟',
+            (PieceType::Pawn, Color::Black) => '♙',
+            (PieceType::Rook, Color::White) => '♜',
+            (PieceType::Rook, Color::Black) => '♖',
+            (PieceType::Knight, Color::White) => '♞',
+            (PieceType::Knight, Color::Black) => '♘',
+            (PieceType::Bishop, Color::White) => '♝',
+            (PieceType::Bishop, Color::Black) => '♗',
+            (PieceType::Queen, Color::White) => '♛',
+            (PieceType::Queen, Color::Black) => '♕',
+            (PieceType::King, Color::White) => '♚',
+            (PieceType::King, Color::Black) => '♔',
         }
     }
 }
@@ -108,6 +115,8 @@ enum Direction {
 pub struct ChessBoard {
     pub squares: [[Option<Piece>; 8]; 8],
     turn: Color,
+    white_en_passant: Option<(usize, usize)>,
+    black_en_passant: Option<(usize, usize)>,
 }
 
 impl ChessBoard {
@@ -115,6 +124,8 @@ impl ChessBoard {
         let mut board = ChessBoard {
             squares: [[None; 8]; 8],
             turn: Color::White,
+            black_en_passant: None,
+            white_en_passant: None,
         };
 
         // Initialize the pawns
@@ -156,7 +167,7 @@ impl ChessBoard {
                 let piece = self.squares[i][j];
                 // print!("{}{} ", i, j);
                 if let Some(p) = piece {
-                    print!("{} ", p.fen_char());
+                    print!("{} ", p.ascii_char());
                 } else {
                     print!("_ ");
                 }
@@ -185,8 +196,9 @@ impl ChessBoard {
 
         //call move_piece function
         match self.move_piece(origin, destination, false) {
-            Ok(()) => println!("Success!"),
-            Err(e) => println!("{}", e),
+            Ok(Some(captured_piece)) => println!("Captured piece: {:?}", captured_piece),
+            Ok(None) => println!("Successfully moved piece."),
+            Err(e) => println!("{:?}", e),
         }
     }
 
@@ -195,35 +207,47 @@ impl ChessBoard {
         from: (usize, usize),
         to: (usize, usize),
         ignore_ownership: bool,
-    ) -> Result<(), &'static str> {
-        // Expand tuples
+    ) -> Result<Option<(usize, usize)>, MoveError> {
         let (f_x, f_y) = from;
         let (t_x, t_y) = to;
 
-        // Check if piece exists
-        if let Some(piece) = &self.squares[f_x][f_y] {
-            println!("Moving piece {:?} from {:?} to {:?}", piece, from, to);
-
+        if let Some(piece) = self.squares[f_x][f_y] {
             if !ignore_ownership && piece.color != self.turn {
-                return Err("You can only move your own pieces.");
-            }
-            // Check if move is valid
-            else if !self.valid_move(from, to, *piece) {
-                return Err("Illegal move.");
-            }
-            // Legal move
-            self.squares[t_x][t_y] = Some(*piece);
-            self.squares[f_x][f_y] = None;
+                self.squares[f_x][f_y] = Some(piece);
+                Err(MoveError::InvalidOwnership)
+            } else {
+                let (is_valid_move, captured_piece) = self.valid_move(from, to, piece);
+                if !is_valid_move {
+                    return Err(MoveError::InvalidMove);
+                }
 
-            self.turn = self.get_turn().opposite();
+                if let Some((x, y)) = captured_piece {
+                    self.squares[x][y] = None;
+                }
+
+                self.squares[t_x][t_y] = Some(piece);
+                self.squares[f_x][f_y] = None;
+
+                match self.turn {
+                    Color::Black => self.black_en_passant = None,
+                    Color::White => self.white_en_passant = None,
+                }
+
+                self.turn = self.get_turn().opposite();
+
+                Ok(captured_piece)
+            }
         } else {
-            return Err("This board cell is empty.");
+            Err(MoveError::EmptySquare)
         }
-
-        Ok(())
     }
 
-    fn valid_move(&self, from: (usize, usize), to: (usize, usize), piece: Piece) -> bool {
+    fn valid_move(
+        &mut self,
+        from: (usize, usize),
+        to: (usize, usize),
+        piece: Piece,
+    ) -> (bool, Option<(usize, usize)>) {
         match piece.piece_type {
             PieceType::Pawn => self.pawn_move(from, to, piece),
             PieceType::Bishop => self.bishop_move(from, to, piece),
@@ -294,7 +318,12 @@ impl ChessBoard {
         }
     }
 
-    fn pawn_move(&self, from: (usize, usize), to: (usize, usize), piece: Piece) -> bool {
+    fn pawn_move(
+        &mut self,
+        from: (usize, usize),
+        to: (usize, usize),
+        piece: Piece,
+    ) -> (bool, Option<(usize, usize)>) {
         let (f_x, f_y) = from;
         let (t_x, t_y) = to;
 
@@ -319,42 +348,90 @@ impl ChessBoard {
         // Check if the pawn is moving forward
         if move_forward {
             // Check if the destination cell is empty
-            return self.squares[t_x][t_y].is_none();
+            return (self.squares[t_x][t_y].is_none(), None);
         }
         // Check if the pawn is moving diagonally
         else if move_diag {
             // Check if the destination cell is occupied by an enemy piece
             if let Some(pos_piece) = self.squares[t_x][t_y] {
-                return pos_piece.color != piece.color;
+                return (pos_piece.color != piece.color, Some(to));
+            }
+            // Check for en passant move
+            if let Some(en_passant) = if piece.color == Color::White {
+                self.white_en_passant
+            } else {
+                self.black_en_passant
+            } {
+                // Check if the destination cell matches the en passant square
+                if en_passant == to {
+                    // Cast to isize so we can subtract.
+                    let enemy_pawn_pos = (
+                        t_x as isize - if piece.color == Color::White { 1 } else { -1 },
+                        t_y as isize,
+                    );
+                    let enemy_pawn_pos = (enemy_pawn_pos.0 as usize, enemy_pawn_pos.1 as usize);
+                    // Check if there actually is a pawn and return true if so.
+                    if let Some(enemy_pawn) = self.squares[enemy_pawn_pos.0][enemy_pawn_pos.1] {
+                        if enemy_pawn.piece_type == PieceType::Pawn
+                            && enemy_pawn.color != piece.color
+                        {
+                            return (true, Some(enemy_pawn_pos));
+                        }
+                    }
+                }
             }
         }
         // Check if the pawn is moving two squares forward
         else if dx == 0 && dy == 2 && !piece.has_moved {
+            // Set the en passant field correctly.
+            if piece.color == Color::White {
+                self.black_en_passant = Some((f_x + 1, f_y));
+            } else {
+                self.white_en_passant = Some((f_x - 1, f_y));
+            }
             // Check if the destination cell is empty
-            return self.squares[t_x][t_y].is_none();
+            return (self.squares[t_x][t_y].is_none(), None);
         }
 
-        false
+        (false, None)
     }
 
-    fn rook_move(&self, from: (usize, usize), to: (usize, usize), piece: Piece) -> bool {
+    fn rook_move(
+        &self,
+        from: (usize, usize),
+        to: (usize, usize),
+        piece: Piece,
+    ) -> (bool, Option<(usize, usize)>) {
         let mut to_color = true;
+        let mut taken_position: Option<(usize, usize)> = None;
+
         if let Some(temp) = self.squares[to.0][to.1] {
             to_color = temp.color != piece.color;
+            taken_position = Some(to);
         }
         let vertical_movement = self.move_vertical(from, to);
         let horizontal_movement = self.move_horizontal(from, to);
 
         println!("{} {} {}", to_color, vertical_movement, horizontal_movement);
-        to_color
-            && ((vertical_movement && !horizontal_movement)
-                || (!vertical_movement && horizontal_movement))
+        (
+            to_color
+                && ((vertical_movement && !horizontal_movement)
+                    || (!vertical_movement && horizontal_movement)),
+            taken_position,
+        )
     }
 
-    fn knight_move(&self, from: (usize, usize), to: (usize, usize), piece: Piece) -> bool {
+    fn knight_move(
+        &self,
+        from: (usize, usize),
+        to: (usize, usize),
+        piece: Piece,
+    ) -> (bool, Option<(usize, usize)>) {
         let mut to_color = true;
+        let mut taken_position: Option<(usize, usize)> = None;
         if let Some(temp) = self.squares[to.0][to.1] {
             to_color = temp.color != piece.color;
+            taken_position = Some(to);
         }
 
         let vertical = {
@@ -379,41 +456,67 @@ impl ChessBoard {
             }
         };
 
-        to_color && (vertical || horizontal)
+        (to_color && (vertical || horizontal), taken_position)
     }
 
-    fn bishop_move(&self, from: (usize, usize), to: (usize, usize), piece: Piece) -> bool {
+    fn bishop_move(
+        &self,
+        from: (usize, usize),
+        to: (usize, usize),
+        piece: Piece,
+    ) -> (bool, Option<(usize, usize)>) {
         let mut to_color = true;
+        let mut taken_position: Option<(usize, usize)> = None;
         if let Some(temp) = self.squares[to.0][to.1] {
             to_color = temp.color != piece.color;
+            taken_position = Some(to);
         }
 
-        to_color && self.move_diagonal(from, to)
+        (to_color && self.move_diagonal(from, to), taken_position)
     }
 
-    fn queen_move(&self, from: (usize, usize), to: (usize, usize), piece: Piece) -> bool {
+    fn queen_move(
+        &self,
+        from: (usize, usize),
+        to: (usize, usize),
+        piece: Piece,
+    ) -> (bool, Option<(usize, usize)>) {
         let mut to_color = true;
+        let mut taken_position: Option<(usize, usize)> = None;
         if let Some(temp) = self.squares[to.0][to.1] {
             to_color = temp.color != piece.color;
+            taken_position = Some(to);
         }
 
         let vertical_movement = self.move_vertical(from, to);
         let horizontal_movement = self.move_horizontal(from, to);
         let diagonal_movement = self.move_diagonal(from, to);
 
-        to_color
-            && ((vertical_movement as u8 + horizontal_movement as u8 + diagonal_movement as u8)
-                == 1)
-
+        (
+            to_color
+                && ((vertical_movement as u8
+                    + horizontal_movement as u8
+                    + diagonal_movement as u8)
+                    == 1),
+            taken_position,
+        )
         // Are these equivalent?
         //  (vertical_movement && !horizontal_movement && !diagonal_movement && to_color)
         //     || (!vertical_movement && horizontal_movement && !diagonal_movement && to_color)
         //     || (!vertical_movement && !horizontal_movement && diagonal_movement && to_color)
     }
-    fn king_move(&self, from: (usize, usize), to: (usize, usize), piece: Piece) -> bool {
+
+    fn king_move(
+        &self,
+        from: (usize, usize),
+        to: (usize, usize),
+        piece: Piece,
+    ) -> (bool, Option<(usize, usize)>) {
         let mut to_color = true;
+        let mut taken_position: Option<(usize, usize)> = None;
         if let Some(temp) = self.squares[to.0][to.1] {
             to_color = temp.color != piece.color;
+            taken_position = Some(to);
         }
 
         let direction = {
@@ -434,7 +537,7 @@ impl ChessBoard {
             }
         };
 
-        to_color && direction
+        (to_color && direction, taken_position)
     }
 
     fn get_turn(&self) -> Color {
@@ -482,6 +585,22 @@ impl ChessBoard {
         } else {
             fen_string.push_str(" b");
         }
+
+        // Enconde the castling rights
+        fen_string.push(' ');
+
+        // Encode the en passant target square(s)
+        fen_string.push(' ');
+        if let Some((rank, file)) = self.white_en_passant {
+            fen_string.push_str(&format!("{}{}", char::from(b'a' + file as u8), rank + 1));
+        } else if let Some((rank, file)) = self.black_en_passant {
+            fen_string.push_str(&format!("{}{}", char::from(b'a' + file as u8), rank + 1));
+        } else {
+            fen_string.push('-');
+        }
+
+        // Enconde the halfmove and fullmove clocks
+        fen_string.push(' ');
 
         println!("FEN: {}", fen_string);
         fen_string

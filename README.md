@@ -7,6 +7,5 @@ There is a module planned that will allow for actual playing of the game. For ex
 Features:
 - Basic rendering to the console
 - FEN string support
-- All rules of chess except
-    - En passant 
+- All rules of chess except:
     - Castling
