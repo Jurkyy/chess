@@ -1,44 +1,46 @@
 ```rust
-use crate::chess::piece::{Piece, Color};
-use crate::chess::position::Position;
+use crate::chess::piece::Piece;
+use crate::chess::game::GameStatus;
+use crate::chess::PIECES;
+
+pub const BOARD_SIZE: usize = 8;
 
 pub struct Board {
-    squares: [[Option<Piece>; 8]; 8],
+    pub pieces: [[Option<Piece>; BOARD_SIZE]; BOARD_SIZE],
+    pub status: GameStatus,
 }
 
 impl Board {
     pub fn new() -> Self {
-        let mut squares = [[None; 8]; 8];
-
-        for i in 0..8 {
-            squares[1][i] = Some(Piece::new(Color::White));
-            squares[6][i] = Some(Piece::new(Color::Black));
+        let mut pieces = [[None; BOARD_SIZE]; BOARD_SIZE];
+        for i in 0..BOARD_SIZE {
+            for j in 0..BOARD_SIZE {
+                if i == 0 || i == 1 || i == 6 || i == 7 {
+                    pieces[i][j] = Some(Piece::new(PIECES[i / 6], i / 6, (i, j)));
+                }
+            }
         }
-
-        squares[0][0] = Some(Piece::new(Color::White));
-        squares[0][7] = Some(Piece::new(Color::White));
-        squares[7][0] = Some(Piece::new(Color::Black));
-        squares[7][7] = Some(Piece::new(Color::Black));
-
-        Board { squares }
+        Board {
+            pieces,
+            status: GameStatus::Ongoing,
+        }
     }
 
-    pub fn get_piece(&self, position: &Position) -> Option<&Piece> {
-        self.squares[position.y as usize][position.x as usize].as_ref()
+    pub fn get_piece(&self, position: (usize, usize)) -> Option<&Piece> {
+        self.pieces[position.0][position.1].as_ref()
     }
 
-    pub fn move_piece(&mut self, from: &Position, to: &Position) -> Result<(), &'static str> {
-        let piece = self.squares[from.y as usize][from.x as usize].take();
-
+    pub fn move_piece(&mut self, from: (usize, usize), to: (usize, usize)) -> Result<(), &'static str> {
+        let piece = self.pieces[from.0][from.1].take();
         match piece {
-            Some(piece) => {
-                if piece.is_valid_move(from, to) {
-                    self.squares[to.y as usize][to.x as usize] = Some(piece);
+            Some(p) => {
+                if p.is_valid_move(to) {
+                    self.pieces[to.0][to.1] = Some(p);
                     Ok(())
                 } else {
                     Err("Invalid move")
                 }
-            }
+            },
             None => Err("No piece at the given position"),
         }
     }

@@ -1,45 +1,47 @@
 ```rust
 use crate::chess::board::Board;
-use crate::chess::game::Game;
-use crate::chess::move::Move;
+use crate::chess::king::King;
+use crate::chess::rook::Rook;
 use crate::chess::piece::Piece;
 use crate::chess::piece::Color;
 
-pub struct Castling {
-    king_side: bool,
-    queen_side: bool,
+pub fn can_castle(board: &Board, king: &King, rook: &Rook) -> bool {
+    if king.has_moved || rook.has_moved {
+        return false;
+    }
+
+    let (king_x, king_y) = king.position;
+    let (rook_x, _rook_y) = rook.position;
+
+    let min_x = king_x.min(rook_x);
+    let max_x = king_x.max(rook_x);
+
+    for x in (min_x + 1)..max_x {
+        if let Some(piece) = board.get_piece(x, king_y) {
+            return false;
+        }
+    }
+
+    true
 }
 
-impl Castling {
-    pub fn new() -> Castling {
-        Castling {
-            king_side: false,
-            queen_side: false,
-        }
+pub fn perform_castling(board: &mut Board, king: &mut King, rook: &mut Rook) {
+    if !can_castle(board, king, rook) {
+        panic!("Invalid castling move");
     }
 
-    pub fn can_castle(&self, game: &Game, color: Color) -> bool {
-        if color == Color::White {
-            self.king_side = game.board.is_empty((7, 6)) && game.board.is_empty((7, 5));
-            self.queen_side = game.board.is_empty((7, 2)) && game.board.is_empty((7, 3)) && game.board.is_empty((7, 4));
-        } else {
-            self.king_side = game.board.is_empty((0, 6)) && game.board.is_empty((0, 5));
-            self.queen_side = game.board.is_empty((0, 2)) && game.board.is_empty((0, 3)) && game.board.is_empty((0, 4));
-        }
+    let (king_x, king_y) = king.position;
+    let (rook_x, rook_y) = rook.position;
 
-        self.king_side || self.queen_side
+    if rook_x > king_x {
+        king.position = (king_x + 2, king_y);
+        rook.position = (king_x + 1, rook_y);
+    } else {
+        king.position = (king_x - 2, king_y);
+        rook.position = (king_x - 1, rook_y);
     }
 
-    pub fn perform_castling(&mut self, game: &mut Game, mv: Move) {
-        if self.can_castle(game, mv.piece.color) {
-            if self.king_side {
-                game.board.move_piece(mv.from, (mv.from.0, 6));
-                game.board.move_piece((mv.from.0, 7), (mv.from.0, 5));
-            } else if self.queen_side {
-                game.board.move_piece(mv.from, (mv.from.0, 2));
-                game.board.move_piece((mv.from.0, 0), (mv.from.0, 3));
-            }
-        }
-    }
+    king.has_moved = true;
+    rook.has_moved = true;
 }
 ```

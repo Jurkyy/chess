@@ -1,17 +1,26 @@
-1. "Board" Struct: This data structure is shared across "src/chess/board.rs", "src/chess/game.rs", "src/chess/move.rs", "src/chess/castling.rs", and all the test files. It represents the chess board.
+Shared Dependencies:
 
-2. "Piece" Enum: This enumeration is shared across "src/chess/piece.rs", "src/chess/board.rs", "src/chess/game.rs", "src/chess/move.rs", "src/chess/castling.rs", and all the test files. It represents the different types of chess pieces.
+1. Data Schemas: 
+   - Piece: Represents a chess piece, with properties for type (pawn, knight, bishop, rook, queen, king), color (white, black), and position (x, y coordinates on the board).
+   - Board: Represents the chess board, with a 2D array of Pieces.
+   - Game: Represents a game of chess, with properties for the current board state, the current player's turn, and the game status (ongoing, check, checkmate, stalemate).
 
-3. "Game" Struct: This data structure is shared across "src/chess/game.rs", "src/chess/move.rs", "src/chess/castling.rs", and all the test files. It represents the state of the chess game.
+2. Exported Variables:
+   - BOARD_SIZE: Represents the size of the chess board, typically 8x8.
+   - PIECES: An enumeration of the types of chess pieces (pawn, knight, bishop, rook, queen, king).
 
-4. "Move" Struct: This data structure is shared across "src/chess/move.rs", "src/chess/game.rs", "src/chess/castling.rs", and all the test files. It represents a move in the game.
+3. Function Names:
+   - move_piece: Moves a piece from one position to another, used in all piece files.
+   - is_valid_move: Checks if a move is valid, used in all piece files.
+   - get_possible_moves: Returns a list of all possible moves for a piece, used in all piece files.
+   - is_in_check: Checks if a player is in check, used in king.rs and game.rs.
+   - is_in_checkmate: Checks if a player is in checkmate, used in king.rs and game.rs.
+   - can_castle: Checks if castling is possible, used in king.rs, rook.rs, and castling.rs.
+   - perform_castling: Performs the castling move, used in king.rs, rook.rs, and castling.rs.
 
-5. "Castling" Struct: This data structure is shared across "src/chess/castling.rs", "src/chess/game.rs", and the "tests/castling_tests.rs" file. It represents the special move of castling in chess.
+4. Message Names:
+   - InvalidMoveError: Error message when a move is invalid.
+   - CheckmateMessage: Message when a player is in checkmate.
+   - StalemateMessage: Message when the game is in stalemate.
 
-6. Function Names: Functions such as "new", "move_piece", "is_valid_move", "can_castle", etc. are shared across multiple files. They are used to manipulate the game state and validate moves.
-
-7. Test Function Names: Functions such as "test_new", "test_move_piece", "test_is_valid_move", "test_can_castle", etc. are shared across all the test files. They are used to test the corresponding functions in the source code.
-
-8. "Position" Struct: This data structure is shared across "src/chess/board.rs", "src/chess/piece.rs", "src/chess/game.rs", "src/chess/move.rs", "src/chess/castling.rs", and all the test files. It represents the position of a piece on the board.
-
-9. "Color" Enum: This enumeration is shared across "src/chess/piece.rs", "src/chess/board.rs", "src/chess/game.rs", "src/chess/move.rs", "src/chess/castling.rs", and all the test files. It represents the color of a chess piece.
+Note: As this is a Rust program, there are no DOM elements or JavaScript functions involved.
