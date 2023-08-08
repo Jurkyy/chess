@@ -1,29 +1,17 @@
-mod chessboard;
+```rust
+mod game_components;
+mod game_logic;
+mod player_management;
+mod user_interface;
+mod game_flow;
 
-use chessboard::board::ChessBoard;
+use game_components::chessboard::Chessboard;
+use player_management::player::Player;
+use game_flow::initialize_game::initialize_game;
+use game_flow::main_game_loop::main_game_loop;
+
 fn main() {
-    let mut chessboard = ChessBoard::new();
-
-    chessboard.fen();
-    chessboard.print_chessboard();
-
-    chessboard.move_piece_from_input("b2 b4");
-    chessboard.fen();
-    chessboard.print_chessboard();
-
-    chessboard.move_piece_from_input("e7 e5");
-    chessboard.fen();
-    chessboard.print_chessboard();
-
-    chessboard.move_piece_from_input("b4 b5");
-    chessboard.fen();
-    chessboard.print_chessboard();
-
-    chessboard.move_piece_from_input("a7 a5");
-    chessboard.fen();
-    chessboard.print_chessboard();
-
-    chessboard.move_piece_from_input("b5 a6");
-    chessboard.fen();
-    chessboard.print_chessboard();
+    let (mut chessboard, mut players) = initialize_game();
+    main_game_loop(&mut chessboard, &mut players);
 }
+```
