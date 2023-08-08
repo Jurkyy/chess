@@ -1,4 +1,4 @@
-use crate::board::{Board, Move};
+use crate::board::Board;
 use crate::pieces::piece::Piece;
 
 pub struct Rook {

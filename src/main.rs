@@ -1,27 +1,9 @@
-```rust
 use std::io::{self, Write};
 mod board;
 mod pieces;
 
 fn main() {
     let mut game_board = board::Board::new();
-    game_loop(&mut game_board);
-}
-
-fn game_loop(game_board: &mut board::Board) {
-    loop {
-        game_board.display();
-        let move = get_move();
-        game_board.make_move(move);
-        if game_board.checkmate() {
-            println!("Checkmate!");
-            break;
-        }
-        if game_board.stalemate() {
-            println!("Stalemate!");
-            break;
-        }
-    }
 }
 
 fn get_move() -> board::Move {
@@ -44,4 +26,3 @@ fn parse_position(input: &str) -> board::Position {
     let y = input.chars().nth(1).unwrap().to_digit(10).unwrap() as usize - 1;
     board::Position { x, y }
 }
-```

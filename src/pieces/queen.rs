@@ -1,16 +1,15 @@
-```rust
-use crate::pieces::piece::Piece;
-use crate::board::{Board, Move};
-use crate::pieces::rook::Rook;
+use crate::board::Board;
 use crate::pieces::bishop::Bishop;
+use crate::pieces::piece::Piece;
+use crate::pieces::rook::Rook;
 
 pub struct Queen {
     pub position: (usize, usize),
-    pub color: String,
+    pub color: bool,
 }
 
 impl Piece for Queen {
-    fn new(position: (usize, usize), color: String) -> Self {
+    fn new(position: (usize, usize), color: bool) -> Self {
         Queen { position, color }
     }
 
@@ -33,4 +32,3 @@ impl Piece for Queen {
         rook.can_move(board, mov) || bishop.can_move(board, mov)
     }
 }
-```

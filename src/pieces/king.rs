@@ -1,5 +1,4 @@
-```rust
-use crate::board::{Board, Move};
+use crate::board::Board;
 use crate::pieces::piece::Piece;
 
 pub struct King {
@@ -57,7 +56,11 @@ impl Piece for King {
             return false;
         }
 
-        let rook_position = if dx > 0 { (0, self.position.1) } else { (7, self.position.1) };
+        let rook_position = if dx > 0 {
+            (0, self.position.1)
+        } else {
+            (7, self.position.1)
+        };
 
         if let Some(rook) = board.get_piece(rook_position) {
             if rook.get_color() == self.color && rook.can_castle(board, mov) {
@@ -68,4 +71,3 @@ impl Piece for King {
         false
     }
 }
-```

@@ -1,5 +1,4 @@
-```rust
-use crate::board::{Board, Move};
+use crate::board::Board;
 use crate::pieces::piece::Piece;
 
 pub struct Pawn {
@@ -47,4 +46,3 @@ impl Piece for Pawn {
         self.has_moved = true;
     }
 }
-```

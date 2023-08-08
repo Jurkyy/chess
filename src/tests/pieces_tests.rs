@@ -1,8 +1,7 @@
-```rust
 #[cfg(test)]
 mod tests {
-    use super::super::pieces::{Piece, Pawn, Knight, Bishop, Rook, Queen, King};
     use super::super::board::Board;
+    use super::super::pieces::{Bishop, King, Knight, Pawn, Piece, Queen, Rook};
 
     #[test]
     fn test_pawn_moves() {
@@ -13,7 +12,19 @@ mod tests {
     #[test]
     fn test_knight_moves() {
         let knight = Knight::new(true);
-        assert_eq!(knight.valid_moves(), vec![(1, 2), (2, 1), (-1, 2), (-2, 1), (1, -2), (2, -1), (-1, -2), (-2, -1)]);
+        assert_eq!(
+            knight.valid_moves(),
+            vec![
+                (1, 2),
+                (2, 1),
+                (-1, 2),
+                (-2, 1),
+                (1, -2),
+                (2, -1),
+                (-1, -2),
+                (-2, -1)
+            ]
+        );
     }
 
     #[test]
@@ -51,7 +62,19 @@ mod tests {
     #[test]
     fn test_king_moves() {
         let king = King::new(true);
-        assert_eq!(king.valid_moves(), vec![(0, 1), (1, 0), (0, -1), (-1, 0), (1, 1), (-1, -1), (1, -1), (-1, 1)]);
+        assert_eq!(
+            king.valid_moves(),
+            vec![
+                (0, 1),
+                (1, 0),
+                (0, -1),
+                (-1, 0),
+                (1, 1),
+                (-1, -1),
+                (1, -1),
+                (-1, 1)
+            ]
+        );
     }
 
     #[test]
@@ -60,4 +83,3 @@ mod tests {
         assert_eq!(board.pieces.len(), 32);
     }
 }
-```
