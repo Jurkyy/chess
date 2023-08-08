@@ -1,4 +1,3 @@
-```rust
 use crate::board::Board;
 use crate::pieces::Piece;
 
@@ -37,4 +36,3 @@ impl Piece for Bishop {
         self.position = end;
     }
 }
-```

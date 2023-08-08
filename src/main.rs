@@ -1,7 +1,5 @@
-```rust
 mod board;
 mod pieces;
-mod tests;
 
 use board::Board;
 use pieces::{Pawn, Knight, Bishop, Rook, Queen, King};
@@ -33,4 +31,3 @@ fn main() {
         }
     }
 }
-```

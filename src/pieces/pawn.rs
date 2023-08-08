@@ -1,4 +1,3 @@
-```rust
 use crate::board::Board;
 use crate::pieces::Piece;
 
@@ -53,4 +52,3 @@ impl Pawn {
         }
     }
 }
-```

@@ -1,5 +1,5 @@
-```rust
 use crate::board::Board;
+use crate::pieces::rook::Rook;
 use crate::pieces::Piece;
 
 pub struct King {
@@ -73,4 +73,3 @@ mod tests {
         assert!(rook.can_castle(&board, &Piece::King(king)));
     }
 }
-```

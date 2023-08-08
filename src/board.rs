@@ -1,5 +1,4 @@
-```rust
-use crate::pieces::{Piece, Pawn, Knight, Bishop, Rook, Queen, King};
+use crate::pieces::{bishop, king, knight, pawn, piece, queen, rook};
 
 pub struct Board {
     squares: [[Option<Box<dyn Piece>>; 8]; 8],
@@ -38,7 +37,11 @@ impl Board {
         Self { squares }
     }
 
-    pub fn move_piece(&mut self, from: (usize, usize), to: (usize, usize)) -> Result<(), &'static str> {
+    pub fn move_piece(
+        &mut self,
+        from: (usize, usize),
+        to: (usize, usize),
+    ) -> Result<(), &'static str> {
         let piece = match self.squares[from.0][from.1].take() {
             Some(piece) => piece,
             None => return Err("No piece at the given position"),
@@ -59,7 +62,11 @@ impl Board {
         }
     }
 
-    pub fn promote_pawn(&mut self, position: (usize, usize), new_piece: Box<dyn Piece>) -> Result<(), &'static str> {
+    pub fn promote_pawn(
+        &mut self,
+        position: (usize, usize),
+        new_piece: Box<dyn Piece>,
+    ) -> Result<(), &'static str> {
         let piece = match self.squares[position.0][position.1].take() {
             Some(piece) => piece,
             None => return Err("No piece at the given position"),
@@ -74,4 +81,3 @@ impl Board {
         }
     }
 }
-```

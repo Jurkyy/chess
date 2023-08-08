@@ -1,4 +1,3 @@
-```rust
 use crate::board::Board;
 use crate::pieces::Piece;
 
@@ -62,4 +61,3 @@ mod tests {
         assert_eq!(valid_moves.len(), 27);
     }
 }
-```

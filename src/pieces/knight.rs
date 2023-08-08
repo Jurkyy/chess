@@ -1,4 +1,3 @@
-```rust
 use crate::board::Board;
 use crate::pieces::Piece;
 
@@ -60,4 +59,3 @@ impl Piece for Knight {
         self.color.clone()
     }
 }
-```

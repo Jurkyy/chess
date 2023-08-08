@@ -1,4 +1,3 @@
-```rust
 use crate::board::Board;
 use crate::pieces::Piece;
 
@@ -40,7 +39,9 @@ impl Rook {
         let king_position = board.get_king_position(&self.color);
 
         // Check if there are no pieces between the rook and the king
-        for i in std::cmp::min(self.position.1, king_position.1) + 1..std::cmp::max(self.position.1, king_position.1) {
+        for i in std::cmp::min(self.position.1, king_position.1) + 1
+            ..std::cmp::max(self.position.1, king_position.1)
+        {
             if board.get_piece((self.position.0, i)).is_some() {
                 return false;
             }
@@ -76,4 +77,3 @@ mod tests {
         assert!(rook.can_castle(&board));
     }
 }
-```
