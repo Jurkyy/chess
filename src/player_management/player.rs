@@ -1,8 +1,4 @@
-```rust
-pub enum Color {
-    White,
-    Black,
-}
+use crate::game_components::chessboard::Color;
 
 pub struct Player {
     name: String,
@@ -22,4 +18,3 @@ impl Player {
         &self.color
     }
 }
-```

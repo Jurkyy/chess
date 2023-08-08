@@ -1,27 +1,31 @@
-```rust
 use crate::game_components::chessboard::Chessboard;
-use crate::game_components::chess_piece::Color;
+use crate::player_management::player::Player;
 
-pub fn check_winning_condition(chessboard: &Chessboard) -> Option<Color> {
-    if checkmate(Color::White, chessboard) {
-        return Some(Color::Black);
-    } else if checkmate(Color::Black, chessboard) {
-        return Some(Color::White);
-    } else if stalemate(chessboard) {
-        return None;
+pub enum Ending {
+    Victory,
+    Tie,
+}
+
+pub fn check_winning_condition<'a>(
+    player: &'a Player,
+    chessboard: &'a Chessboard,
+) -> Option<(Ending, &'a Player)> {
+    if checkmate(player, chessboard) {
+        return Some((Ending::Victory, player));
+    } else if stalemate(player, chessboard) {
+        return Some((Ending::Tie, player));
     }
     None
 }
 
-fn checkmate(color: Color, chessboard: &Chessboard) -> bool {
+fn checkmate(player: &Player, chessboard: &Chessboard) -> bool {
     // Implement checkmate logic here
     // This function should return true if the player of the given color is in checkmate
     unimplemented!()
 }
 
-fn stalemate(chessboard: &Chessboard) -> bool {
+fn stalemate(player: &Player, chessboard: &Chessboard) -> bool {
     // Implement stalemate logic here
     // This function should return true if the game is in a stalemate
     unimplemented!()
 }
-```

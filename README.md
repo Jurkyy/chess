@@ -1,3 +1,7 @@
+# Chess implementation
+
+Implements a basic chess game. The module chessboard contains the logic of chess and allows for basic interaction with the game.
+
 Shared Dependencies:
 
 1. **Trait**: `ChessPiece` - This trait is shared among all the chess piece files (bishop.rs, knight.rs, queen.rs, king.rs, rook.rs, pawn.rs). It defines common methods that all chess pieces must implement.

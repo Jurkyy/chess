@@ -1,34 +1,87 @@
-```rust
 use crate::game_components::chessboard::Chessboard;
-use crate::player_management::player::Player;
-use crate::user_interface::print_chessboard::print_chessboard;
-use crate::user_interface::input_handling::handle_input;
+use crate::game_flow::winning_condition::{check_winning_condition, Ending};
 use crate::game_logic::move_validation::validate_move;
-use crate::game_flow::winning_condition::check_winning_condition;
+use crate::player_management::player::Player;
+use crate::user_interface::input_handling::handle_input;
+use crate::user_interface::print_chessboard::print_chessboard;
 
-pub fn main_game_loop(players: &mut [Player; 2], chessboard: &mut Chessboard) {
-    let mut current_player_index = 0;
+pub fn main_game_loop(chessboard: &mut Chessboard, player1: Player, player2: Player) {
+    let mut gameloop = GameLoop::new(player1, player2);
 
     loop {
         print_chessboard(chessboard);
 
-        let current_player = &players[current_player_index];
-        println!("{}'s turn", current_player.name);
+        let current_player = gameloop.get_player();
+        println!("{}'s turn", current_player.name());
 
-        let move = handle_input(current_player);
-        if validate_move(move, current_player, chessboard) {
-            chessboard.update(move);
-        } else {
-            println!("Invalid move, try again");
-            continue;
+        match handle_input() {
+            Ok((x1, y1, x2, y2)) => {
+                println!("Move coordinates: ({}, {}) to ({}, {})", x1, y1, x2, y2);
+                if validate_move(&chessboard, (x1, y1), (x2, y2)) {
+                    match chessboard.update((x1, y1, x2, y2)) {
+                        Ok(_) => continue,
+                        Err(err) => eprintln!("{}", err),
+                    }
+                } else {
+                    println!("Invalid move, try again");
+                    continue;
+                }
+
+                match check_winning_condition(current_player, chessboard) {
+                    Some((ending, player)) => match ending {
+                        Ending::Victory => {
+                            println!("{} has won the game!", player.name());
+                            break;
+                        }
+                        Ending::Tie => {
+                            println!(
+                                "The game is a tie, but player {} won... Something went wrong",
+                                player.name()
+                            );
+                            break;
+                        }
+                    },
+                    None => {
+                        gameloop.switch_player();
+                    }
+                }
+            }
+            Err(error_message) => {
+                eprintln!("Error: {}", error_message);
+                // Handle the error case
+            }
         }
-
-        if check_winning_condition(current_player, chessboard) {
-            println!("{} has won the game!", current_player.name);
-            break;
-        }
-
-        current_player_index = (current_player_index + 1) % players.len();
     }
 }
-```
+
+struct GameLoop {
+    current_player: u8,
+    player1: Player,
+    player2: Player,
+}
+
+impl GameLoop {
+    fn new(player1: Player, player2: Player) -> Self {
+        GameLoop {
+            current_player: 0,
+            player1,
+            player2,
+        }
+    }
+
+    fn get_player(&self) -> &Player {
+        if self.current_player == 0 {
+            &self.player1
+        } else {
+            &self.player2
+        }
+    }
+
+    fn switch_player(&mut self) {
+        if self.current_player == 0 {
+            self.current_player = 1;
+        } else {
+            self.current_player = 0;
+        }
+    }
+}
