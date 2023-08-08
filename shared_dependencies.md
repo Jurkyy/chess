@@ -1,17 +1,21 @@
-Shared Dependencies:
+Shared dependencies across the files:
 
-1. "Piece" Struct: This is a shared data schema that is used across all the piece files (pawn.rs, knight.rs, bishop.rs, rook.rs, queen.rs, king.rs). It likely contains properties such as the piece's type, color, and current position.
+1. "Piece" Struct: This is a shared data schema across all the piece files (pawn.rs, knight.rs, bishop.rs, rook.rs, queen.rs, king.rs). It likely contains properties such as the piece's type, color, and current position.
 
-2. "Board" Struct: This is another shared data schema that is used across multiple files. It represents the chess board and likely contains properties such as the current state of the board and methods for manipulating the board.
+2. "Board" Struct: This is a shared data schema across main.rs, board.rs, and tests.rs. It represents the chess board and likely contains properties such as the current state of the board and the positions of all pieces.
 
-3. "PIECES" Constant: This is a shared exported variable that is imported in multiple files. It likely represents a list of all the pieces in the game.
+3. "PIECES" Constant: This seems to be a shared constant across multiple files. It likely represents all the pieces in a chess game.
 
-4. "init_board" Function: This is a shared function that is used to initialize the board. It is likely used in the board.rs file and possibly in main.rs.
+4. "init" Function: This function is mentioned in the context of the Board and seems to be a shared function across board.rs and tests.rs. It likely initializes the board to its starting state.
 
-5. "castling" Function: This is a shared function that is used to implement the castling rule. It is likely used in the king.rs and rook.rs files, and possibly in the castling.rs file.
+5. "new" Function: This function is mentioned in the context of the Board and seems to be a shared function across board.rs and tests.rs. It likely creates a new instance of the Board.
 
-6. Test Functions: Each of the test files (chess_tests.rs, piece_tests.rs, pawn_tests.rs, knight_tests.rs, bishop_tests.rs, rook_tests.rs, queen_tests.rs, king_tests.rs, board_tests.rs, castling_tests.rs) will likely contain a series of test functions that are named after the functionality they are testing. These functions are shared in the sense that they follow a similar naming convention and structure, but they are not necessarily used across multiple files.
+6. "move" Function: This function is likely shared across all the piece files and possibly main.rs, board.rs, and tests.rs. It likely moves a piece from one position to another.
 
-7. "move" Function: This is a shared function that is likely used in each of the piece files to implement the movement rules for each piece.
+7. "capture" Function: This function is likely shared across all the piece files and possibly main.rs, board.rs, and tests.rs. It likely captures an opponent's piece.
 
-8. "capture" Function: This is another shared function that is likely used in each of the piece files to implement the capture rules for each piece.
+8. "promote" Function: This function is likely shared in pawn.rs, main.rs, board.rs, and tests.rs. It likely promotes a pawn to another piece when it reaches the opposite end of the board.
+
+9. "castling" Function: This function is likely shared in rook.rs, king.rs, main.rs, board.rs, and tests.rs. It likely implements the special move of castling.
+
+10. "test" Functions: These functions are likely shared across tests.rs and possibly all other files. They likely test the functionality of the other functions and the behavior of the pieces.

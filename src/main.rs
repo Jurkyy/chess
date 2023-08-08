@@ -1,21 +1,36 @@
 ```rust
-mod chess;
-mod piece;
-mod pawn;
-mod knight;
-mod bishop;
-mod rook;
-mod queen;
-mod king;
 mod board;
-mod castling;
+mod pieces;
+mod tests;
 
-use chess::Chess;
 use board::Board;
+use pieces::{Pawn, Knight, Bishop, Rook, Queen, King};
 
 fn main() {
-    let mut game = Chess::new();
-    game.init_board();
-    game.play();
+    let mut board = Board::new();
+
+    // Initialize the board with pieces
+    board.init();
+
+    // Game loop
+    loop {
+        // Display the board
+        board.display();
+
+        // Get the player's move
+        let move = board.get_move();
+
+        // Make the move
+        board.make_move(move);
+
+        // Check for game end conditions
+        if board.checkmate() {
+            println!("Checkmate!");
+            break;
+        } else if board.stalemate() {
+            println!("Stalemate!");
+            break;
+        }
+    }
 }
 ```

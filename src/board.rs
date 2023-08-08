@@ -1,14 +1,8 @@
 ```rust
-use crate::piece::Piece;
-use crate::pawn::Pawn;
-use crate::knight::Knight;
-use crate::bishop::Bishop;
-use crate::rook::Rook;
-use crate::queen::Queen;
-use crate::king::King;
+use crate::pieces::{Piece, Pawn, Knight, Bishop, Rook, Queen, King};
 
 pub struct Board {
-    pub squares: [[Option<Box<dyn Piece>>; 8]; 8],
+    squares: [[Option<Box<dyn Piece>>; 8]; 8],
 }
 
 impl Board {
@@ -42,6 +36,42 @@ impl Board {
         squares[7][4] = Some(Box::new(King::new(false)));
 
         Self { squares }
+    }
+
+    pub fn move_piece(&mut self, from: (usize, usize), to: (usize, usize)) -> Result<(), &'static str> {
+        let piece = match self.squares[from.0][from.1].take() {
+            Some(piece) => piece,
+            None => return Err("No piece at the given position"),
+        };
+
+        if piece.valid_move(from, to) {
+            if let Some(target) = &self.squares[to.0][to.1] {
+                if target.is_white() == piece.is_white() {
+                    return Err("Cannot capture own piece");
+                }
+            }
+
+            self.squares[to.0][to.1] = Some(piece);
+            Ok(())
+        } else {
+            self.squares[from.0][from.1] = Some(piece);
+            Err("Invalid move for piece")
+        }
+    }
+
+    pub fn promote_pawn(&mut self, position: (usize, usize), new_piece: Box<dyn Piece>) -> Result<(), &'static str> {
+        let piece = match self.squares[position.0][position.1].take() {
+            Some(piece) => piece,
+            None => return Err("No piece at the given position"),
+        };
+
+        if piece.as_any().is::<Pawn>() && (position.0 == 0 || position.0 == 7) {
+            self.squares[position.0][position.1] = Some(new_piece);
+            Ok(())
+        } else {
+            self.squares[position.0][position.1] = Some(piece);
+            Err("Can only promote a pawn at the end of the board")
+        }
     }
 }
 ```
