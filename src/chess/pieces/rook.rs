@@ -1,43 +1,41 @@
 ```rust
-use crate::chess::board::Board;
-use crate::chess::move::Move;
-use crate::chess::pieces::Piece;
+use super::Piece;
+use crate::chess::board::{Board, Move};
+use crate::chess::utils::Position;
 
 pub struct Rook {
-    position: (usize, usize),
-    color: Piece,
+    position: Position,
     has_moved: bool,
 }
 
 impl Rook {
-    pub fn new(position: (usize, usize), color: Piece) -> Self {
-        Rook {
+    pub fn new(position: Position) -> Self {
+        Self {
             position,
-            color,
             has_moved: false,
         }
     }
 
-    pub fn is_valid_move(&self, board: &Board, new_move: &Move) -> bool {
-        // Check if the move is valid for a rook
-        // Add your implementation here
+    pub fn has_moved(&self) -> bool {
+        self.has_moved
     }
 
-    pub fn make_move(&mut self, board: &mut Board, new_move: &Move) {
-        // Make the move and update the rook's position
-        // Add your implementation here
-        self.has_moved = true;
+    pub fn set_has_moved(&mut self, has_moved: bool) {
+        self.has_moved = has_moved;
+    }
+}
+
+impl Piece for Rook {
+    fn position(&self) -> Position {
+        self.position
     }
 
-    pub fn is_castling_move(&self, new_move: &Move) -> bool {
-        // Check if the move is a castling move
-        // Add your implementation here
+    fn set_position(&mut self, position: Position) {
+        self.position = position;
     }
 
-    pub fn perform_castling(&mut self, board: &mut Board, new_move: &Move) {
-        // Perform the castling move and update the rook's position
-        // Add your implementation here
-        self.has_moved = true;
+    fn is_valid_move(&self, board: &Board, m: &Move) -> bool {
+        // Implement the logic for valid rook move
     }
 }
 ```

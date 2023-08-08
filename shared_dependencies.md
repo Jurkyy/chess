@@ -1,21 +1,19 @@
-1. "Board" Struct: This is the main data structure that represents the chess board. It is used in "board.rs", "game.rs", "move.rs" and all the test files.
+Shared Dependencies:
 
-2. "Piece" Enum: This is an enumeration of all the types of pieces in a chess game. It is used in "board.rs", "king.rs", "rook.rs", "game.rs", "move.rs" and all the test files.
+1. "Board" struct: This is shared across all the files as it represents the chess board. It is defined in "src/chess/board.rs" and used in all other files.
 
-3. "Move" Struct: This represents a move in the game. It is used in "board.rs", "king.rs", "rook.rs", "game.rs", "move.rs" and all the test files.
+2. "Piece" trait: This trait is defined in "src/chess/pieces/mod.rs" and implemented in all the individual piece files ("src/chess/pieces/king.rs", "src/chess/pieces/rook.rs", "src/chess/pieces/pawn.rs", "src/chess/pieces/knight.rs", "src/chess/pieces/bishop.rs", "src/chess/pieces/queen.rs"). It provides a common interface for all chess pieces.
 
-4. "King" Struct: This represents the king piece in the game. It is used in "king.rs", "game.rs", "move.rs" and the corresponding test files.
+3. "Game" struct: This struct is defined in "src/chess/game.rs" and used in the test files to simulate a game for testing purposes.
 
-5. "Rook" Struct: This represents the rook piece in the game. It is used in "rook.rs", "game.rs", "move.rs" and the corresponding test files.
+4. "Position" struct: This struct is defined in "src/chess/utils.rs" and used across all the files to represent the position of a piece on the board.
 
-6. "is_valid_move" Function: This function checks if a move is valid. It is used in "board.rs", "king.rs", "rook.rs", "game.rs", "move.rs" and all the test files.
+5. "is_valid_move" function: This function is defined in the "Piece" trait and implemented in all the individual piece files. It checks if a move is valid for a specific piece.
 
-7. "make_move" Function: This function executes a move. It is used in "board.rs", "king.rs", "rook.rs", "game.rs", "move.rs" and all the test files.
+6. "move_piece" function: This function is defined in "src/chess/board.rs" and used in "src/chess/game.rs" and the test files to move a piece on the board.
 
-8. "is_in_check" Function: This function checks if the king is in check. It is used in "board.rs", "king.rs", "game.rs", "move.rs" and the corresponding test files.
+7. "can_castle" function: This function is defined in "src/chess/pieces/king.rs" and "src/chess/pieces/rook.rs" and used in "src/chess/game.rs" and the test files to check if castling is possible.
 
-9. "is_in_checkmate" Function: This function checks if the king is in checkmate. It is used in "board.rs", "king.rs", "game.rs", "move.rs" and the corresponding test files.
+8. "castling_tests", "pieces_tests", "board_tests", "game_tests": These are the names of the test modules defined in the respective test files. They contain unit tests for the corresponding components of the chess game.
 
-10. "is_castling_move" Function: This function checks if a move is a castling move. It will be used in "king.rs", "rook.rs", "game.rs", "move.rs" and the corresponding test files.
-
-11. "perform_castling" Function: This function performs a castling move. It will be used in "king.rs", "rook.rs", "game.rs", "move.rs" and the corresponding test files.
+9. "test_move", "test_castle", "test_check", "test_checkmate": These are the names of some of the individual tests defined in the test files. They test specific functionalities of the chess game.

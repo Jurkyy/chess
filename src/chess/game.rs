@@ -1,48 +1,40 @@
 ```rust
 use crate::chess::board::Board;
 use crate::chess::pieces::{Piece, King, Rook};
-use crate::chess::move::Move;
+use crate::chess::utils::Position;
 
 pub struct Game {
     board: Board,
-    current_turn: Piece,
 }
 
 impl Game {
-    pub fn new() -> Game {
+    pub fn new() -> Self {
         Game {
             board: Board::new(),
-            current_turn: Piece::White,
         }
     }
 
-    pub fn make_move(&mut self, mv: Move) -> Result<(), &'static str> {
-        if self.board.is_valid_move(&mv) {
-            if self.board.is_castling_move(&mv) {
-                self.board.perform_castling(&mv)?;
-            } else {
-                self.board.make_move(&mv)?;
-            }
-            self.switch_turn();
+    pub fn move_piece(&mut self, from: Position, to: Position) -> Result<(), &'static str> {
+        let piece = self.board.get_piece(from)?;
+
+        if piece.is_valid_move(from, to) {
+            self.board.move_piece(from, to)?;
             Ok(())
         } else {
             Err("Invalid move")
         }
     }
 
-    fn switch_turn(&mut self) {
-        self.current_turn = match self.current_turn {
-            Piece::White => Piece::Black,
-            Piece::Black => Piece::White,
-        };
-    }
+    pub fn castle(&mut self, king: &King, rook: &Rook) -> Result<(), &'static str> {
+        if king.can_castle(rook) {
+            let king_position = self.board.get_position(king)?;
+            let rook_position = self.board.get_position(rook)?;
 
-    pub fn is_in_check(&self) -> bool {
-        self.board.is_in_check(self.current_turn)
-    }
-
-    pub fn is_in_checkmate(&self) -> bool {
-        self.board.is_in_checkmate(self.current_turn)
+            self.board.move_piece(king_position, rook_position)?;
+            Ok(())
+        } else {
+            Err("Castling not possible")
+        }
     }
 }
 ```
