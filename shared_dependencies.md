@@ -1,26 +1,17 @@
 Shared Dependencies:
 
-1. Data Schemas: 
-   - Piece: Represents a chess piece, with properties for type (pawn, knight, bishop, rook, queen, king), color (white, black), and position (x, y coordinates on the board).
-   - Board: Represents the chess board, with a 2D array of Pieces.
-   - Game: Represents a game of chess, with properties for the current board state, the current player's turn, and the game status (ongoing, check, checkmate, stalemate).
+1. "Piece" Struct: This is a shared data schema that is used across all the piece files (pawn.rs, knight.rs, bishop.rs, rook.rs, queen.rs, king.rs). It likely contains properties such as the piece's type, color, and current position.
 
-2. Exported Variables:
-   - BOARD_SIZE: Represents the size of the chess board, typically 8x8.
-   - PIECES: An enumeration of the types of chess pieces (pawn, knight, bishop, rook, queen, king).
+2. "Board" Struct: This is another shared data schema that is used across multiple files. It represents the chess board and likely contains properties such as the current state of the board and methods for manipulating the board.
 
-3. Function Names:
-   - move_piece: Moves a piece from one position to another, used in all piece files.
-   - is_valid_move: Checks if a move is valid, used in all piece files.
-   - get_possible_moves: Returns a list of all possible moves for a piece, used in all piece files.
-   - is_in_check: Checks if a player is in check, used in king.rs and game.rs.
-   - is_in_checkmate: Checks if a player is in checkmate, used in king.rs and game.rs.
-   - can_castle: Checks if castling is possible, used in king.rs, rook.rs, and castling.rs.
-   - perform_castling: Performs the castling move, used in king.rs, rook.rs, and castling.rs.
+3. "PIECES" Constant: This is a shared exported variable that is imported in multiple files. It likely represents a list of all the pieces in the game.
 
-4. Message Names:
-   - InvalidMoveError: Error message when a move is invalid.
-   - CheckmateMessage: Message when a player is in checkmate.
-   - StalemateMessage: Message when the game is in stalemate.
+4. "init_board" Function: This is a shared function that is used to initialize the board. It is likely used in the board.rs file and possibly in main.rs.
 
-Note: As this is a Rust program, there are no DOM elements or JavaScript functions involved.
+5. "castling" Function: This is a shared function that is used to implement the castling rule. It is likely used in the king.rs and rook.rs files, and possibly in the castling.rs file.
+
+6. Test Functions: Each of the test files (chess_tests.rs, piece_tests.rs, pawn_tests.rs, knight_tests.rs, bishop_tests.rs, rook_tests.rs, queen_tests.rs, king_tests.rs, board_tests.rs, castling_tests.rs) will likely contain a series of test functions that are named after the functionality they are testing. These functions are shared in the sense that they follow a similar naming convention and structure, but they are not necessarily used across multiple files.
+
+7. "move" Function: This is a shared function that is likely used in each of the piece files to implement the movement rules for each piece.
+
+8. "capture" Function: This is another shared function that is likely used in each of the piece files to implement the capture rules for each piece.

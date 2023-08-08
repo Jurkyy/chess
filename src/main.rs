@@ -1,18 +1,21 @@
 ```rust
 mod chess;
+mod piece;
+mod pawn;
+mod knight;
+mod bishop;
+mod rook;
+mod queen;
+mod king;
+mod board;
+mod castling;
 
-use chess::game::Game;
-use chess::board::Board;
-use chess::pawn::Pawn;
-use chess::knight::Knight;
-use chess::bishop::Bishop;
-use chess::rook::Rook;
-use chess::queen::Queen;
-use chess::king::King;
-use chess::castling::Castling;
+use chess::Chess;
+use board::Board;
 
 fn main() {
-    let mut game = Game::new();
-    game.start();
+    let mut game = Chess::new();
+    game.init_board();
+    game.play();
 }
 ```
