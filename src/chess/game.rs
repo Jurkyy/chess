@@ -1,40 +1,50 @@
 ```rust
 use crate::chess::board::Board;
-use crate::chess::pieces::{Piece, King, Rook};
-use crate::chess::utils::Position;
+use crate::chess::move::Move;
+use crate::chess::piece::Piece;
+use crate::chess::color::Color;
+use crate::chess::castling::Castling;
 
 pub struct Game {
     board: Board,
+    current_color: Color,
+    castling: Castling,
 }
 
 impl Game {
-    pub fn new() -> Self {
+    pub fn new() -> Game {
         Game {
             board: Board::new(),
+            current_color: Color::White,
+            castling: Castling::new(),
         }
     }
 
-    pub fn move_piece(&mut self, from: Position, to: Position) -> Result<(), &'static str> {
-        let piece = self.board.get_piece(from)?;
+    pub fn make_move(&mut self, start: (usize, usize), end: (usize, usize)) -> Result<(), &'static str> {
+        let piece = self.board.get_piece(start)?;
 
-        if piece.is_valid_move(from, to) {
-            self.board.move_piece(from, to)?;
-            Ok(())
-        } else {
-            Err("Invalid move")
+        if piece.color != self.current_color {
+            return Err("It's not your turn");
         }
-    }
 
-    pub fn castle(&mut self, king: &King, rook: &Rook) -> Result<(), &'static str> {
-        if king.can_castle(rook) {
-            let king_position = self.board.get_position(king)?;
-            let rook_position = self.board.get_position(rook)?;
+        let move = Move::new(start, end);
 
-            self.board.move_piece(king_position, rook_position)?;
-            Ok(())
-        } else {
-            Err("Castling not possible")
+        if !piece.is_valid_move(&move, &self.board) {
+            return Err("Invalid move");
         }
+
+        if let Some(castling_move) = self.castling.check_castling(&move, &piece, &self.board) {
+            self.board.move_piece(castling_move)?;
+        } else {
+            self.board.move_piece(move)?;
+        }
+
+        self.current_color = match self.current_color {
+            Color::White => Color::Black,
+            Color::Black => Color::White,
+        };
+
+        Ok(())
     }
 }
 ```
