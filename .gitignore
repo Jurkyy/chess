@@ -1,0 +1,32 @@
+# .gitignore
+
+# Ignore Cargo Lockfile
+Cargo.lock
+
+# Ignore build output
+target/
+
+# Ignore .env file
+.env
+
+# Ignore IDE related files
+.idea/
+*.iml
+*.rs.bk
+
+# Ignore other files that may contain sensitive information
+*.pem
+*.log
+
+# Ignore all .bin files
+*.bin
+
+# Ignore all .o and .a files
+*.o
+*.a
+
+# Ignore all .so files
+*.so
+
+# Ignore all .exe files
+*.exe

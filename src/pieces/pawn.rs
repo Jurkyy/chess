@@ -1,54 +1,50 @@
-use crate::board::Board;
-use crate::pieces::Piece;
+```rust
+use crate::board::{Board, Move};
+use crate::pieces::piece::Piece;
 
 pub struct Pawn {
-    position: (usize, usize),
-    color: String,
-    first_move: bool,
+    pub color: bool,
+    pub has_moved: bool,
 }
 
-impl Pawn {
-    pub fn new(position: (usize, usize), color: String) -> Self {
+impl Piece for Pawn {
+    fn new(color: bool) -> Self {
         Pawn {
-            position,
             color,
-            first_move: true,
+            has_moved: false,
         }
     }
 
-    pub fn move_piece(&mut self, new_position: (usize, usize), board: &mut Board) {
-        if self.valid_move(new_position, board) {
-            self.position = new_position;
-            self.first_move = false;
-        }
+    fn get_color(&self) -> bool {
+        self.color
     }
 
-    pub fn valid_move(&self, new_position: (usize, usize), board: &Board) -> bool {
-        let (x, y) = self.position;
-        let (new_x, new_y) = new_position;
+    fn get_valid_moves(&self, board: &Board, x: usize, y: usize) -> Vec<Move> {
+        let mut moves = Vec::new();
 
-        if self.first_move && new_y == y + 2 && new_x == x {
-            return true;
+        let direction = if self.color { -1 } else { 1 };
+
+        if board.is_valid_move(x, y, x, y as isize + direction) {
+            moves.push(Move::new(x, y, x, y + direction as usize));
         }
 
-        if new_y == y + 1 && new_x == x {
-            return true;
+        if !self.has_moved && board.is_valid_move(x, y, x, y as isize + 2 * direction) {
+            moves.push(Move::new(x, y, x, y + 2 * direction as usize));
         }
 
-        if new_y == y + 1 && (new_x == x + 1 || new_x == x - 1) {
-            if let Some(piece) = board.get_piece(new_position) {
-                if piece.color != self.color {
-                    return true;
-                }
-            }
+        if board.is_valid_capture(x, y, x - 1, y as isize + direction) {
+            moves.push(Move::new(x, y, x - 1, y + direction as usize));
         }
 
-        false
+        if board.is_valid_capture(x, y, x + 1, y as isize + direction) {
+            moves.push(Move::new(x, y, x + 1, y + direction as usize));
+        }
+
+        moves
     }
 
-    pub fn promote(&mut self, new_piece: Piece) {
-        if self.position.1 == 7 {
-            *self = Pawn::new(self.position, self.color);
-        }
+    fn after_move(&mut self) {
+        self.has_moved = true;
     }
 }
+```

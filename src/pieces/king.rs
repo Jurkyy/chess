@@ -1,15 +1,15 @@
-use crate::board::Board;
-use crate::pieces::rook::Rook;
-use crate::pieces::Piece;
+```rust
+use crate::board::{Board, Move};
+use crate::pieces::piece::Piece;
 
 pub struct King {
     pub position: (usize, usize),
-    pub color: String,
+    pub color: bool,
     pub has_moved: bool,
 }
 
-impl King {
-    pub fn new(position: (usize, usize), color: String) -> Self {
+impl Piece for King {
+    fn new(color: bool, position: (usize, usize)) -> Self {
         King {
             position,
             color,
@@ -17,59 +17,55 @@ impl King {
         }
     }
 
-    pub fn valid_move(&self, board: &Board, end: (usize, usize)) -> bool {
-        let dx = (self.position.0 as i32 - end.0 as i32).abs();
-        let dy = (self.position.1 as i32 - end.1 as i32).abs();
-
-        dx <= 1 && dy <= 1
+    fn get_color(&self) -> bool {
+        self.color
     }
 
-    pub fn can_castle(&self, board: &Board, rook: &Piece) -> bool {
-        if self.has_moved || rook.has_moved() {
+    fn get_position(&self) -> (usize, usize) {
+        self.position
+    }
+
+    fn set_position(&mut self, position: (usize, usize)) {
+        self.position = position;
+    }
+
+    fn can_move(&self, board: &Board, mov: &Move) -> bool {
+        let dx = (self.position.0 as i32 - mov.destination.0 as i32).abs();
+        let dy = (self.position.1 as i32 - mov.destination.1 as i32).abs();
+
+        if dx > 1 || dy > 1 {
             return false;
         }
 
-        let (start, end) = if self.position.0 < rook.position().0 {
-            (self.position.0, rook.position().0)
-        } else {
-            (rook.position().0, self.position.0)
-        };
-
-        for i in start + 1..end {
-            if board.piece_at((i, self.position.1)).is_some() {
+        if let Some(piece) = board.get_piece(mov.destination) {
+            if piece.get_color() == self.color {
                 return false;
             }
         }
 
         true
     }
-}
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+    fn can_castle(&self, board: &Board, mov: &Move) -> bool {
+        if self.has_moved {
+            return false;
+        }
 
-    #[test]
-    fn test_valid_move() {
-        let board = Board::new();
-        let king = King::new((4, 4), "White".to_string());
+        let dx = self.position.0 as i32 - mov.destination.0 as i32;
 
-        assert!(king.valid_move(&board, (5, 5)));
-        assert!(king.valid_move(&board, (4, 5)));
-        assert!(king.valid_move(&board, (3, 3)));
-        assert!(!king.valid_move(&board, (6, 6)));
-    }
+        if dx.abs() != 2 {
+            return false;
+        }
 
-    #[test]
-    fn test_can_castle() {
-        let mut board = Board::new();
-        let king = King::new((4, 0), "White".to_string());
-        let rook = Piece::Rook(Rook::new((7, 0), "White".to_string()));
+        let rook_position = if dx > 0 { (0, self.position.1) } else { (7, self.position.1) };
 
-        board.set_piece(king.position, Some(Piece::King(king)));
-        board.set_piece(rook.position(), Some(rook.clone()));
+        if let Some(rook) = board.get_piece(rook_position) {
+            if rook.get_color() == self.color && rook.can_castle(board, mov) {
+                return true;
+            }
+        }
 
-        assert!(king.can_castle(&board, &rook));
-        assert!(rook.can_castle(&board, &Piece::King(king)));
+        false
     }
 }
+```

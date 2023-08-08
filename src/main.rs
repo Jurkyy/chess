@@ -1,33 +1,47 @@
+```rust
+use std::io::{self, Write};
 mod board;
 mod pieces;
 
-use board::Board;
-use pieces::{Pawn, Knight, Bishop, Rook, Queen, King};
-
 fn main() {
-    let mut board = Board::new();
+    let mut game_board = board::Board::new();
+    game_loop(&mut game_board);
+}
 
-    // Initialize the board with pieces
-    board.init();
-
-    // Game loop
+fn game_loop(game_board: &mut board::Board) {
     loop {
-        // Display the board
-        board.display();
-
-        // Get the player's move
-        let move = board.get_move();
-
-        // Make the move
-        board.make_move(move);
-
-        // Check for game end conditions
-        if board.checkmate() {
+        game_board.display();
+        let move = get_move();
+        game_board.make_move(move);
+        if game_board.checkmate() {
             println!("Checkmate!");
             break;
-        } else if board.stalemate() {
+        }
+        if game_board.stalemate() {
             println!("Stalemate!");
             break;
         }
     }
 }
+
+fn get_move() -> board::Move {
+    print!("Enter your move: ");
+    io::stdout().flush().unwrap();
+    let mut input = String::new();
+    io::stdin().read_line(&mut input).unwrap();
+    parse_move(&input.trim())
+}
+
+fn parse_move(input: &str) -> board::Move {
+    let split: Vec<&str> = input.split_whitespace().collect();
+    let start = parse_position(split[0]);
+    let end = parse_position(split[1]);
+    board::Move { start, end }
+}
+
+fn parse_position(input: &str) -> board::Position {
+    let x = input.chars().nth(0).unwrap() as usize - 'a' as usize;
+    let y = input.chars().nth(1).unwrap().to_digit(10).unwrap() as usize - 1;
+    board::Position { x, y }
+}
+```

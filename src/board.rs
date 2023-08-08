@@ -1,4 +1,6 @@
-use crate::pieces::{bishop, king, knight, pawn, piece, queen, rook};
+```rust
+use crate::pieces::{Piece, King, Queen, Rook, Bishop, Knight, Pawn};
+use std::fmt;
 
 pub struct Board {
     squares: [[Option<Box<dyn Piece>>; 8]; 8],
@@ -37,47 +39,51 @@ impl Board {
         Self { squares }
     }
 
-    pub fn move_piece(
-        &mut self,
-        from: (usize, usize),
-        to: (usize, usize),
-    ) -> Result<(), &'static str> {
-        let piece = match self.squares[from.0][from.1].take() {
-            Some(piece) => piece,
-            None => return Err("No piece at the given position"),
-        };
-
-        if piece.valid_move(from, to) {
-            if let Some(target) = &self.squares[to.0][to.1] {
-                if target.is_white() == piece.is_white() {
-                    return Err("Cannot capture own piece");
+    pub fn display(&self) {
+        for row in self.squares.iter().rev() {
+            for square in row.iter() {
+                match square {
+                    Some(piece) => print!("{} ", piece),
+                    None => print!(". "),
                 }
             }
-
-            self.squares[to.0][to.1] = Some(piece);
-            Ok(())
-        } else {
-            self.squares[from.0][from.1] = Some(piece);
-            Err("Invalid move for piece")
+            println!();
         }
     }
 
-    pub fn promote_pawn(
-        &mut self,
-        position: (usize, usize),
-        new_piece: Box<dyn Piece>,
-    ) -> Result<(), &'static str> {
-        let piece = match self.squares[position.0][position.1].take() {
-            Some(piece) => piece,
-            None => return Err("No piece at the given position"),
-        };
+    pub fn get_move(&self) -> (usize, usize, usize, usize) {
+        // TODO: Implement this function to get a move from the user.
+        unimplemented!()
+    }
 
-        if piece.as_any().is::<Pawn>() && (position.0 == 0 || position.0 == 7) {
-            self.squares[position.0][position.1] = Some(new_piece);
-            Ok(())
-        } else {
-            self.squares[position.0][position.1] = Some(piece);
-            Err("Can only promote a pawn at the end of the board")
-        }
+    pub fn make_move(&mut self, start_x: usize, start_y: usize, end_x: usize, end_y: usize) {
+        // TODO: Implement this function to make a move on the board.
+        unimplemented!()
+    }
+
+    pub fn checkmate(&self) -> bool {
+        // TODO: Implement this function to check if the game is in checkmate.
+        unimplemented!()
+    }
+
+    pub fn stalemate(&self) -> bool {
+        // TODO: Implement this function to check if the game is in stalemate.
+        unimplemented!()
     }
 }
+
+impl fmt::Display for Board {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for row in self.squares.iter().rev() {
+            for square in row.iter() {
+                match square {
+                    Some(piece) => write!(f, "{} ", piece)?,
+                    None => write!(f, ". ")?,
+                }
+            }
+            writeln!(f)?;
+        }
+        Ok(())
+    }
+}
+```

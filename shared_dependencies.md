@@ -1,21 +1,17 @@
-Shared dependencies across the files:
+1. "Piece" Trait: This trait is shared across all the piece files (pawn.rs, knight.rs, bishop.rs, rook.rs, queen.rs, king.rs). It defines the common behavior of all chess pieces.
 
-1. "Piece" Struct: This is a shared data schema across all the piece files (pawn.rs, knight.rs, bishop.rs, rook.rs, queen.rs, king.rs). It likely contains properties such as the piece's type, color, and current position.
+2. "Board" Struct: This struct is used in board.rs and main.rs. It represents the chess board and its current state.
 
-2. "Board" Struct: This is a shared data schema across main.rs, board.rs, and tests.rs. It represents the chess board and likely contains properties such as the current state of the board and the positions of all pieces.
+3. "PIECES" Constant: This constant is used in multiple files to represent the different types of chess pieces.
 
-3. "PIECES" Constant: This seems to be a shared constant across multiple files. It likely represents all the pieces in a chess game.
+4. "display", "get_move", "make_move", "checkmate", "stalemate" Functions: These functions are mentioned in main.rs but are not implemented. They are expected to be part of the Board struct in board.rs.
 
-4. "init" Function: This function is mentioned in the context of the Board and seems to be a shared function across board.rs and tests.rs. It likely initializes the board to its starting state.
+5. "init" Function: This function is mentioned in the tests and is expected to be part of the Board struct in board.rs.
 
-5. "new" Function: This function is mentioned in the context of the Board and seems to be a shared function across board.rs and tests.rs. It likely creates a new instance of the Board.
+6. "board::new" Function: This function is expected to be part of the Board struct in board.rs and is used to create a new instance of the board.
 
-6. "move" Function: This function is likely shared across all the piece files and possibly main.rs, board.rs, and tests.rs. It likely moves a piece from one position to another.
+7. ".gitignore", "README.md", "Cargo.toml" Files: These files are shared across the project and are essential for the project's version control, documentation, and configuration respectively.
 
-7. "capture" Function: This function is likely shared across all the piece files and possibly main.rs, board.rs, and tests.rs. It likely captures an opponent's piece.
+8. "tests" Module: This module is expected to contain all the tests for the application, including board_tests.rs and pieces_tests.rs.
 
-8. "promote" Function: This function is likely shared in pawn.rs, main.rs, board.rs, and tests.rs. It likely promotes a pawn to another piece when it reaches the opposite end of the board.
-
-9. "castling" Function: This function is likely shared in rook.rs, king.rs, main.rs, board.rs, and tests.rs. It likely implements the special move of castling.
-
-10. "test" Functions: These functions are likely shared across tests.rs and possibly all other files. They likely test the functionality of the other functions and the behavior of the pieces.
+9. "pieces" Module: This module is expected to contain all the piece files (pawn.rs, knight.rs, bishop.rs, rook.rs, queen.rs, king.rs, piece.rs, mod.rs). It is used to structure the code related to the chess pieces.
