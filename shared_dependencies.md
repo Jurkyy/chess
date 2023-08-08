@@ -1,19 +1,21 @@
-1. ChessPiece Class: This class is likely shared across all files as it represents the chess pieces. It would contain properties like type of piece, color, and current position.
+1. "Board" Struct: This is the main data structure that represents the chess board. It is used in "board.rs", "game.rs", "move.rs" and all the test files.
 
-2. ChessBoard Class: This class represents the chess board and is likely used in all files. It would contain the current state of the game board.
+2. "Piece" Enum: This is an enumeration of all the types of pieces in a chess game. It is used in "board.rs", "king.rs", "rook.rs", "game.rs", "move.rs" and all the test files.
 
-3. ChessPlayer Class: This class represents a player and is likely used in all files. It would contain properties like player's color, score, and list of pieces.
+3. "Move" Struct: This represents a move in the game. It is used in "board.rs", "king.rs", "rook.rs", "game.rs", "move.rs" and all the test files.
 
-4. ChessGame Class: This class controls the game flow and is likely used in all files. It would contain methods for making moves, checking game status, and handling special moves like castling.
+4. "King" Struct: This represents the king piece in the game. It is used in "king.rs", "game.rs", "move.rs" and the corresponding test files.
 
-5. Castling Function: This function is specific to the castling move and would be used in the chess_game.py and castling.py files. It would contain the logic for executing a castling move.
+5. "Rook" Struct: This represents the rook piece in the game. It is used in "rook.rs", "game.rs", "move.rs" and the corresponding test files.
 
-6. TestCastling Function: This function is specific to testing the castling functionality and would be used in the test_castling.py file.
+6. "is_valid_move" Function: This function checks if a move is valid. It is used in "board.rs", "king.rs", "rook.rs", "game.rs", "move.rs" and all the test files.
 
-7. Utils: This file likely contains utility functions that are used across multiple files. These could include functions for validating moves, checking if a square is under attack, etc.
+7. "make_move" Function: This function executes a move. It is used in "board.rs", "king.rs", "rook.rs", "game.rs", "move.rs" and all the test files.
 
-8. PR Message: This is the message that will be included with the pull request. It should describe the changes made, why they were made, and any potential impact on the existing codebase.
+8. "is_in_check" Function: This function checks if the king is in check. It is used in "board.rs", "king.rs", "game.rs", "move.rs" and the corresponding test files.
 
-9. DOM Elements: As this is a chess game, there would likely be DOM elements for the game board, individual squares, and pieces. These would be used in any JavaScript functions that update the game's visual representation.
+9. "is_in_checkmate" Function: This function checks if the king is in checkmate. It is used in "board.rs", "king.rs", "game.rs", "move.rs" and the corresponding test files.
 
-10. Data Schemas: The data schemas for the chess pieces, board, and players would be shared across all files. These would define the structure of the data used in the game.
+10. "is_castling_move" Function: This function checks if a move is a castling move. It will be used in "king.rs", "rook.rs", "game.rs", "move.rs" and the corresponding test files.
+
+11. "perform_castling" Function: This function performs a castling move. It will be used in "king.rs", "rook.rs", "game.rs", "move.rs" and the corresponding test files.
