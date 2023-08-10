@@ -19,13 +19,39 @@ pub fn check_winning_condition<'a>(
 }
 
 fn checkmate(player: &Player, chessboard: &Chessboard) -> bool {
-    // Implement checkmate logic here
-    // This function should return true if the player of the given color is in checkmate
-    unimplemented!()
+    if !chessboard.is_in_check(*player.color()) {
+        return false;
+    }
+
+    let all_moves = chessboard.generate_all_moves(*player.color());
+
+    for temp_move in all_moves {
+        let mut temp_board = chessboard.clone();
+        temp_board.update(temp_move);
+
+        if !temp_board.is_in_check(*player.color()) {
+            return false;
+        }
+    }
+
+    true
 }
 
 fn stalemate(player: &Player, chessboard: &Chessboard) -> bool {
-    // Implement stalemate logic here
-    // This function should return true if the game is in a stalemate
-    unimplemented!()
+    if chessboard.is_in_check(*player.color()) {
+        return false;
+    }
+
+    let all_moves = chessboard.generate_all_moves(*player.color());
+
+    for temp_move in all_moves {
+        let mut temp_board = chessboard.clone();
+        temp_board.update(temp_move);
+
+        if !temp_board.is_in_check(*player.color()) {
+            return false;
+        }
+    }
+
+    true
 }

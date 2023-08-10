@@ -29,9 +29,9 @@ impl ChessPiece for Pawn {
         let forward_direction = if self.color == Color::White { 1 } else { -1 };
 
         // Single step forward
-        let x = (start.0 as i32 + forward_direction) as usize;
-        let y = start.1;
-        if x < 8
+        let x = start.0;
+        let y = (start.1 as i32 + forward_direction) as usize;
+        if y < 8
             && match *chessboard.get_square(x, y) {
                 Square::Empty => true,
                 Square::Occupied(_) => false,
@@ -41,19 +41,20 @@ impl ChessPiece for Pawn {
 
             // Double step forward (if not moved yet)
             if !self.has_moved
-                && match *chessboard.get_square(x + forward_direction as usize, y) {
+                && match *chessboard.get_square((y as i32 + forward_direction) as usize, y) {
                     Square::Empty => true,
                     Square::Occupied(_) => false,
                 }
             {
-                moves.push((x + forward_direction as usize, y));
+                moves.push((x, (y as i32 + forward_direction) as usize));
             }
         }
 
         // Diagonal captures
-        for &dy in [-1, 1].iter() {
-            let x = (start.0 as i32 + forward_direction) as usize;
-            let y = (start.1 as i32 + dy) as usize;
+        for &dx in [-1, 1].iter() {
+            let x = (start.0 as i32 + dx) as usize;
+            let y = (start.1 as i32 + forward_direction) as usize;
+
             if x < 8 && y < 8 {
                 match chessboard.get_square(x, y) {
                     Square::Occupied(piece) if piece.color() != self.color() => {

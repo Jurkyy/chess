@@ -17,9 +17,9 @@ pub fn main_game_loop(chessboard: &mut Chessboard, player1: Player, player2: Pla
         match handle_input() {
             Ok((x1, y1, x2, y2)) => {
                 println!("Move coordinates: ({}, {}) to ({}, {})", x1, y1, x2, y2);
-                if validate_move(&chessboard, (x1, y1), (x2, y2)) {
+                if validate_move(chessboard, (x1, y1), (x2, y2)) {
                     match chessboard.update((x1, y1, x2, y2)) {
-                        Ok(_) => continue,
+                        Ok(_) => {}
                         Err(err) => eprintln!("{}", err),
                     }
                 } else {
@@ -42,6 +42,7 @@ pub fn main_game_loop(chessboard: &mut Chessboard, player1: Player, player2: Pla
                         }
                     },
                     None => {
+                        println!("Switching players!");
                         gameloop.switch_player();
                     }
                 }

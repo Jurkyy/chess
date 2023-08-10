@@ -1,3 +1,6 @@
+use crate::player_management::player;
+use crate::user_interface::print_chessboard::print_chessboard;
+
 use super::chess_piece::ChessPiece;
 use super::king::King;
 use std::fmt;
@@ -48,11 +51,23 @@ impl Chessboard {
     }
 
     pub fn place_piece(&mut self, piece: Rc<dyn ChessPiece>, x: usize, y: usize) {
-        self.squares[x][y] = Square::Occupied(piece);
+        self.squares[y][x] = Square::Occupied(piece);
     }
 
-    pub fn get_square(&self, x: usize, y: usize) -> &Square {
-        &self.squares[x][y]
+    pub fn clear_square(&mut self, x: usize, y: usize) {
+        self.squares[y][x] = Square::Empty;
+    }
+
+    pub fn get_square(&self, y: usize, x: usize) -> &Square {
+        &self.squares[y][x]
+    }
+
+    pub fn get_piece(&self, x: usize, y: usize) -> Result<Rc<dyn ChessPiece + 'static>, String> {
+        let square = self.get_square(y, x);
+        match square {
+            Square::Occupied(piece) => Ok(Rc::clone(piece)),
+            Square::Empty => Err("There should be a piece here...".to_string()),
+        }
     }
 
     pub fn update(
@@ -61,15 +76,17 @@ impl Chessboard {
     ) -> Result<(), &'static str> {
         let (x1, y1, x2, y2) = player_move;
 
+        println!("Updating {:?}", player_move);
+
         // Retrieve the piece from the source square
-        let source_piece = match &self.squares[x1][y1] {
+        let source_piece = match &self.squares[y1][x1] {
             Square::Occupied(rc_piece) => Rc::clone(rc_piece),
             Square::Empty => return Err("No piece at the source square."),
         };
 
         // Move the piece to the destination square
-        self.squares[x2][y2] = Square::Occupied(source_piece);
-        self.squares[x1][y1] = Square::Empty;
+        self.place_piece(source_piece, y2, x2);
+        self.clear_square(y1, x1);
 
         Ok(())
     }
@@ -118,6 +135,31 @@ impl Chessboard {
 
     pub fn get_en_passant_target(&self) -> Option<(usize, usize)> {
         self.en_passant_target
+    }
+
+    pub fn generate_all_moves(&self, color: Color) -> Vec<(usize, usize, usize, usize)> {
+        let mut all_moves = Vec::new();
+
+        for row in 0..8 {
+            for col in 0..8 {
+                if let Square::Occupied(piece) = self.get_square(row, col) {
+                    if piece.color() == color {
+                        let valid_moves = piece.valid_moves((row, col), &self);
+                        for to in valid_moves {
+                            all_moves.push((row, col, to.0, to.1));
+                        }
+                    }
+                }
+            }
+        }
+
+        all_moves
+    }
+}
+
+impl Default for Chessboard {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
