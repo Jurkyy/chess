@@ -125,9 +125,9 @@ impl ChessPiece for Rook {
         // Add castling moves if applicable
         if self.can_castle(chessboard, start) {
             if start.1 == 0 {
-                moves.push((start.0, 2));
+                moves.push((2, start.0));
             } else if start.1 == 7 {
-                moves.push((start.0, 6));
+                moves.push((6, start.0));
             }
         }
 

@@ -74,7 +74,7 @@ impl Chessboard {
         &mut self,
         player_move: (usize, usize, usize, usize),
     ) -> Result<(), &'static str> {
-        let (x1, y1, x2, y2) = player_move;
+        let (y1, x1, y2, x2) = player_move;
 
         println!("Updating {:?}", player_move);
 
@@ -85,8 +85,8 @@ impl Chessboard {
         };
 
         // Move the piece to the destination square
-        self.place_piece(source_piece, y2, x2);
-        self.clear_square(y1, x1);
+        self.place_piece(source_piece, x2, y2);
+        self.clear_square(x1, y1);
 
         Ok(())
     }
